@@ -1,0 +1,57 @@
+{
+    "ID": "id1",
+    "ComponentID": "componentid1",
+    "Instruction": "instruction1",
+    "DataList": [
+        {
+            "ID": "id2",
+            "ComponentID": "componentid2",
+            "Instruction": "instruction2",
+            "DataList": [
+                
+            ],
+            "DataDic": {
+                
+            }
+        },
+        {
+            "ID": "id3",
+            "ComponentID": "componentid3",
+            "Instruction": "instruction3",
+            "DataList": [
+                
+            ],
+            "DataDic": {
+                
+            }
+        }
+    ],
+    "DataDic": {
+        "4": {
+            {
+                "ID": "id4",
+                "ComponentID": "componentid4",
+                "Instruction": "instruction4",
+                "DataList": [
+                    
+                ],
+                "DataDic": {
+                    
+                }
+            }
+        },
+        "5": {
+            {
+                "ID": "id5",
+                "ComponentID": "componentid5",
+                "Instruction": "instruction5",
+                "DataList": [
+                    
+                ],
+                "DataDic": {
+                    
+                }
+            }
+        }
+    }
+}
