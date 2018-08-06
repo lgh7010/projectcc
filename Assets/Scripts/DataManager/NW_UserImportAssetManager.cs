@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 
+using UnityEngine.UI;//only test
+
 /// <summary>
 /// 
 /// </summary>
@@ -52,7 +54,7 @@ public class NW_UserImportAssetManager : MonoBehaviour {
         //step 3. 해당 에셋의 매니패스트를 순회하여, 해당 에셋이 필요로하는 모든 파일을 로드한다.
         this.userImportAssetDic[assetName] = new Dictionary<string, UserImportAssetInfo>();
         foreach (KeyValuePair<string, string> kv in dic) {
-            (this.userImportAssetDic[assetName])[kv.Key] = WWWLoadUserImportAsset(kv.Key, kv.Value);
+            (this.userImportAssetDic[assetName])[kv.Key] = WWWLoadUserImportAsset(kv.Key, Path.Combine(assetRootPath, kv.Value));
         }
     }
 
@@ -77,7 +79,7 @@ public class NW_UserImportAssetManager : MonoBehaviour {
 
     private static UserImportAssetInfo WWWLoadUserImportAsset(string assetUsageIdx, string path) {
         WWW www = new WWW("file://" + path);
-        Debug.Log("www load texture.name : " + www.texture.name);
+        //GameObject.Find("Cube").GetComponent<MeshRenderer>().material.mainTexture = www.texture; //-> 이런식으로 사용하면 됨
         return new UserImportAssetInfo(assetUsageIdx, www.texture);
     }
     private static string GetUserImportAssetPath() {
