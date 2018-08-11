@@ -5,6 +5,12 @@ using System.IO;
 
 using UnityEngine.UI;//only test
 
+public static partial class CONST_VALUES {
+    public const int CHARECTOR_ILUST_TYPE1_SIZE_X = 256;
+    public const int CHARECTOR_ILUST_TYPE1_SIZE_Y = 256;
+    public const int CHARECTOR_ILUSE_ATLAS_MAX_SIZE = 2048;
+}
+
 /// <summary>
 /// 유저 임포트 텍스쳐는 오로지 일러스트에만 사용됩니다. 256*256 사이즈만 제공됩니다.
 /// 그 외에는, UserImportAsset폴더가 아니라 Skins폴더에 존재하는 파일을 직접 수정하여 스킨으로 사용할 수 있습니다.
@@ -180,16 +186,11 @@ public enum UserImportAssetType {
     AudioClip,
 }
 
-public static partial class CONST_VALUES {
-    public const int CHARECTOR_ILUST_TYPE1_SIZE_X = 256;
-    public const int CHARECTOR_ILUST_TYPE1_SIZE_Y = 256;
-    public const int CHARECTOR_ILUSE_ATLAS_MAX_SIZE = 2048;
-}
-
 public class UserImportAssetInfo {
     public object asset;
     public string assetName;
     public UserImportAssetType type;
+
     public UserImportAssetInfo(string name, Texture2D texture) {
         this.assetName = name;
         this.asset = texture;
@@ -200,6 +201,7 @@ public class UserImportAssetInfo {
         this.asset = audioClip;
         this.type = UserImportAssetType.AudioClip;
     }
+
     public Texture2D texture {
         get {
             return asset as Texture2D;
