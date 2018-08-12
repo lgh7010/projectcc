@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class HexaTileInfo_Terrain_World : MonoBehaviour {
+public class HexaTileInfo_Terrain_World : HexaTileInfo {
 
 	// Use this for initialization
 	void Start () {
