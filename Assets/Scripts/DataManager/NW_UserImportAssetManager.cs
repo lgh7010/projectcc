@@ -12,9 +12,9 @@ public static partial class CONST_VALUES {
 }
 
 /// <summary>
-/// 유저 임포트 텍스쳐는 오로지 일러스트에만 사용됩니다. 256*256 사이즈만 제공됩니다.
-/// 그 외에는, UserImportAsset폴더가 아니라 Skins폴더에 존재하는 파일을 직접 수정하여 스킨으로 사용할 수 있습니다.
-/// 여기 있는 파일은 아틀라스를 그대로 한장의 그림으로 익스포트 한 것으로, 그림 곳곳의 요소들을 수정하여 해당 오브젝트에 실제로 적용할 수 있습니다.
+/// 유저 임포트 텍스쳐는 일러스트, 타일의 텍스쳐에만 사용됩니다. 이는 아틀라스로 묶이지 않습니다.
+/// 유저 임포트 에셋을 사용할 수 있는 오브젝트의 경우, 최초에는 우선 해당 오브젝트에 처음부터 씌워져 있는 아틀라스의 텍스쳐가 적용됩니다만,
+/// 해당 오브젝트의 스크립트에서 자신의 usage에 맞는 에셋을 이 스크립트의 딕셔너리에서 찾아, 존재하면 사용하게 됩니다.
 /// </summary>
 public class NW_UserImportAssetManager : MonoBehaviour {
     /// <summary>
@@ -79,9 +79,6 @@ public class NW_UserImportAssetManager : MonoBehaviour {
             UserImportAudioClipDic[kv.Key] = kv.Value[0];
             Debug.Log("audioclip added in FinalAudioClipList. key : " + kv.Key + ", name : " + kv.Value[0].texture.name);
         }
-
-        //step 5. 위에서 생성한 배열들에 필요한 잔여 작업을 수행한다.
-        List<Texture2D> atlasList = MakeAtlasFromTextureList(UserImportTextureDic);
     }
     private void process_EachFolder(string manifestFileName) {
         string assetPath = Path.Combine(userImportAssetPath, manifestFileName);
@@ -133,14 +130,10 @@ public class NW_UserImportAssetManager : MonoBehaviour {
         return false;
     }
     private List<Texture2D> MakeAtlasFromTextureList(Dictionary<string, UserImportAssetInfo> dic) {
-        //이제 캐릭터 일러스트, 아틀라스 크기가 모두 확정되었으므로, 이 함수 작성 가능 (텍스쳐의 사용처가 전부 캐릭터 일러이므로, 그냥 막 묶으면 됨)
-        //언제 어떤 캐릭이 쓰일지 예측할 방법은 없음.
         //List<Texture2D> rst = new List<Texture2D>();
-
         //Texture2D currentPackingAtlas = new Texture2D(4096, 4096);
         //int accumulatedWidth = 0;
         //int accumulatedHeight = 0;
-
         //List<Texture2D> currentPackingAtlasCandidates = new List<Texture2D>();
         //foreach (var texture in list) {
         //    if ((accumulatedWidth + texture.width) < 4096 && (accumulatedHeight + texture.height) < 4096) {//현재 채우는 중인 아틀라스에 적당한 빈 공간이 있는 경우
@@ -150,13 +143,11 @@ public class NW_UserImportAssetManager : MonoBehaviour {
         //    } else {
         //        currentPackingAtlas.PackTextures(currentPackingAtlasCandidates.ToArray(), 0);
         //        rst.Add(currentPackingAtlas);
-
         //        currentPackingAtlas = new Texture2D(4096, 4096);
         //        accumulatedHeight = 0;
         //        accumulatedWidth = 0;
         //    }
         //}
-
         //return rst;
         return null;
     }
