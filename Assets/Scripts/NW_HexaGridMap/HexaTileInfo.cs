@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//모든 타일의 공통 속성을 다루는 클래스
 public class HexaTileInfo : MonoBehaviour {
     #region 타일의 외형을 결정하는 속성
     public Vector2Int position;
-    public int[] boundaryHeight = new int[6];//타일의 외곽 높이. -2, -1, 0, 1, 2중 하나
+    public int[] boundaryHeight = new int[6];//타일의 각 모서리의 높이. 0, 1, 2중 하나.
     public string userImportTextureUsage;
     #endregion
 
@@ -15,22 +16,14 @@ public class HexaTileInfo : MonoBehaviour {
     #endregion
 
     #region 타일의 정보
-    public Type_Usage type_usage;
-    public Type_Terrain type_terrain;
+    public TileType type;
     [HideInInspector]
     public List<HexaTileResourceInfo> resource;
     #endregion
 }
 
-public enum Type_Usage {
+public enum TileType {
     City,
     Suburbs,
-    Resource,
     Normal,
-}
-public enum Type_Terrain {
-    Plane,
-    Mountain,
-    Coast,
-    See,
 }
