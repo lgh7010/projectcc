@@ -10,29 +10,49 @@ public class HexaGridTileMap : MonoBehaviour {
 
     public Dictionary<Vector2Int, GameObject> Cordination = new Dictionary<Vector2Int, GameObject>();
 
-    //이렇게 하나의 함수로 다 하려고 하지말고, 그냥 타일을 '추가'하는 함수랑, 높이를 변동시키는 함수를 나누자.
-    //에디터를 처음 켰을 때 나올 장면에는 그냥 다 노말 타일에 모든 타일이 높이가 1이다.
-    //그리고 이렇게 타일 하나 하나를 그릴 때마다 높이를 지정하면 문제가 많다. 모든 타일 정보를 딱 정해놓고, 그에 따라 상대적 높이를 구해야 한다.
-    public void DrawOneTile(Vector2Int position, int height) {
+    public void AddTile(Vector2Int position, int height) {
         if (!Cordination.ContainsKey(position)) {
-            //step 1. 타일 생성
-            GameObject addTile = GameObject.Instantiate(dic[0]);
-
-            //step 2. 위치정보 설정
-            addTile.GetComponent<HexaTileInfo>().position = position;
-
-            //step 3. 이웃정보 추가
-
-            //step 4. 
-
-            //step 5. 좌표계에 등록
-            Cordination[position] = addTile;
+            Debug.LogError("Cordination doesn't have key : " + position);
+            return;
         }
-        
+
+        //step 1. 타일 생성
+        GameObject addTile = GameObject.Instantiate(dic[0]);
+
+        //step 2. 기본 타일 컴포넌트 추가.
+        //타일에 따라 Suburbs, Normal, City중 하나의 컴포넌트를 가지므로 전환시 부하가 많이 걸릴 수 있지만, 이런 부하는 맵 에디터에서만 사용된다.(인게임에서 타일 타입 변환 불가)
+        HexaTileInfo cp = addTile.AddComponent<HexaTileInfo_Normal>();
+
+        //step 3. 위치정보 설정
+        cp.position = position;
+        cp.boundaryHeight = new int[]{ 1, 1, 1, 1, 1, 1 };
+
+        //step 4. 이웃정보 추가
+
+
+        //step 5. 기타 필요한 참조 확보 및 정보 추가
+        cp.map = this;
+        cp.type = TileType.Normal;
+
+        //step 6. 좌표계에 등록
+        Cordination[position] = addTile;
     }
-	public void DrawAllTiles() {
+    public void ChangeTileType(Vector2Int position, TileType type) {
+        if (!Cordination.ContainsKey(position)) {
+            Debug.LogError("Cordination doesn't have key : " + position);
+            return;
+        }
+    }
+    public void ChnageTileHeight(Vector2Int position, int delta) {
+        if (!Cordination.ContainsKey(position)) {
+            Debug.LogError("Cordination doesn't have key : " + position);
+            return;
+        }
+    }
+    public void AddResourceToTile(HexaTileResourceInfo rsc) {
 
     }
+    
 }
 
 public static class HexaTileCalculateUtil {
