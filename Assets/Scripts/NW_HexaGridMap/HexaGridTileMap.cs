@@ -5,10 +5,10 @@ using UnityEngine;
 public class HexaGridTileMap : MonoBehaviour {
 
     #region 종류별 타일의 프리팹 참조
-    public Dictionary<int, GameObject> dic = new Dictionary<int, GameObject>();
+    public Dictionary<int, GameObject> dic = new Dictionary<int, GameObject>();//주변 타일의 height(1자리 자연수)를 북쪽 타일부터 시계방향으로 나열한 int값이 키가 된다. (Ex : 455456)
     #endregion
 
-    public Dictionary<Vector2Int, GameObject> Cordination = new Dictionary<Vector2Int, GameObject>();
+    public Dictionary<Vector2Int, HexaTileInfo> Cordination = new Dictionary<Vector2Int, HexaTileInfo>();
 
     public void AddTile(Vector2Int position, int height) {
         if (!Cordination.ContainsKey(position)) {
@@ -17,40 +17,88 @@ public class HexaGridTileMap : MonoBehaviour {
         }
 
         //step 1. 타일 생성
-        GameObject addTile = GameObject.Instantiate(dic[0]);
+        GameObject addTile = GameObject.Instantiate(dic[111111]);
+        addTile.transform.SetParent(this.gameObject.transform);
 
         //step 2. 기본 타일 컴포넌트 추가.
-        //타일에 따라 Suburbs, Normal, City중 하나의 컴포넌트를 가지므로 전환시 부하가 많이 걸릴 수 있지만, 이런 부하는 맵 에디터에서만 사용된다.(인게임에서 타일 타입 변환 불가)
         HexaTileInfo cp = addTile.AddComponent<HexaTileInfo_Normal>();
 
         //step 3. 위치정보 설정
-        cp.position = position;
-        cp.boundaryHeight = new int[]{ 1, 1, 1, 1, 1, 1 };
+        cp.tilePosition = position;
+        cp.tileHeight = 5;
 
         //step 4. 이웃정보 추가
-
+        try {
+            cp.neighborTile[0] = this.Cordination[position + new Vector2Int(0, 2)];//null이면 그냥 null이 들어가면 된다.
+            cp.neighborTile[1] = this.Cordination[position + new Vector2Int(1, 1)];
+            cp.neighborTile[2] = this.Cordination[position + new Vector2Int(1, -1)];
+            cp.neighborTile[3] = this.Cordination[position + new Vector2Int(0, -2)];
+            cp.neighborTile[4] = this.Cordination[position + new Vector2Int(-1, -1)];
+            cp.neighborTile[5] = this.Cordination[position + new Vector2Int(-1, 1)];
+        } catch {
+            Debug.LogError("HexaGridTileMap addTile, set neighborTiles Error");
+            GameObject.Destroy(addTile);
+            return;
+        }
 
         //step 5. 기타 필요한 참조 확보 및 정보 추가
         cp.map = this;
         cp.type = TileType.Normal;
 
         //step 6. 좌표계에 등록
-        Cordination[position] = addTile;
+        try {
+            Cordination[position] = cp;
+        } catch {
+            Debug.LogError("HexaGridTileMap addTile, set Cordination Error");
+            GameObject.Destroy(addTile);
+            return;
+        }
     }
     public void ChangeTileType(Vector2Int position, TileType type) {
         if (!Cordination.ContainsKey(position)) {
             Debug.LogError("Cordination doesn't have key : " + position);
             return;
         }
+        if(Cordination[position].type == type) {
+            Debug.Log("바꾸려는 타일 타입이, 이전의 타일 타입과 동일합니다.");
+            return;
+        }
+
+        //타일 타입을 바꾸면, 공통속성(HexaTileInfo클래스의 속성)만 보존된다.
+        
     }
     public void ChnageTileHeight(Vector2Int position, int delta) {
         if (!Cordination.ContainsKey(position)) {
             Debug.LogError("Cordination doesn't have key : " + position);
             return;
         }
-    }
-    public void AddResourceToTile(HexaTileResourceInfo rsc) {
+        if(Cordination[position].tileHeight + delta > 6 || Cordination[position].tileHeight + delta < 4) {
+            Debug.LogError("HexaTile height change Error. key : " + position);
+            return;
+        }
 
+        try {
+            Cordination[position].tileHeight += delta;
+        } catch {
+            Debug.LogError("HexaTile ChnageTileHeight Error. key : " + position + ", before height : " + Cordination[position].tileHeight + ". delta : " + delta);
+            return;
+        }
+    }
+    public void AddResourceToTile(Vector2Int position, HexaTileResourceInfo rsc) {
+        if (!Cordination.ContainsKey(position)) {
+            Debug.LogError("Cordination doesn't have key : " + position);
+            return;
+        }
+
+        try {
+            if(Cordination[position].resource == null) {
+                Cordination[position].resource = new List<HexaTileResourceInfo>();
+            }
+            Cordination[position].resource.Add(rsc);
+        } catch {
+            Debug.LogError("HexaTile AddResourceToTile Error. key : " + position);
+            return;
+        }
     }
     
 }

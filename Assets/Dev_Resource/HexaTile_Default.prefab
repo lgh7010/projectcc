@@ -39,6 +39,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4915468364375292}
+  - component: {fileID: 114781164334626874}
   m_Layer: 0
   m_Name: HexaTile_Default
   m_TagString: Untagged
@@ -242,6 +243,29 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AdditionalVertexStreamMesh: {fileID: 0}
+--- !u!114 &114781164334626874
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1502324058592210}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8917a7f492958d04a8d30ca46cbd45f5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tilePosition: {x: 0, y: 0}
+  tileHeight: 0
+  userImportTextureUsage: 
+  map: {fileID: 0}
+  neighborTile:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  type: 0
 --- !u!114 &114857749139061740
 MonoBehaviour:
   m_ObjectHideFlags: 1
