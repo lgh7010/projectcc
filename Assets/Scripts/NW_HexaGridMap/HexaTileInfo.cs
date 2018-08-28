@@ -8,6 +8,8 @@ public class HexaTileInfo : MonoBehaviour {
     public Vector2Int tilePosition;
     public int tileHeight;//타일의 높이. 4, 5, 6중 하나. 추후의 확장성을 위해 이렇게 함(지금은 3단계로 구분하지만, 나중에 5단계로 구분하고 싶을 수도 있음. 0, 1, 2로 하면 그렇게 하려면 음수가 필요)
     public string userImportTextureUsage;
+    public GameObject faceModel;
+    public GameObject bodyModel;
     #endregion
 
     #region 맵과 인접 타일의 참조. 0~5 : N, NE, SE, S, SW, NW
@@ -20,48 +22,30 @@ public class HexaTileInfo : MonoBehaviour {
     [HideInInspector]
     public List<HexaTileResourceInfo> resource;
     #endregion
-
-    public static string tempstr;
-    [ContextMenu("test_Export")]
-    public string ExportJson() {
-        try {
-            string json = NWJson.ToJson(this);
-            Debug.Log(json);
-            tempstr = json;
-            return json;
-        } catch {
-            Debug.LogError("HexaTileInfo ExportJosn json make Error");
-            return null;
-        }
+    
+    public static HexaTileInfo ExportCommonAttributes(HexaTileInfo source) {
+        HexaTileInfo ret = new HexaTileInfo();
+        ret.tilePosition = source.tilePosition;
+        ret.tileHeight = source.tileHeight;
+        ret.userImportTextureUsage = source.userImportTextureUsage;
+        ret.faceModel = source.faceModel;
+        ret.bodyModel = source.bodyModel;
+        ret.map = source.map;
+        ret.neighborTile = source.neighborTile;
+        ret.type = source.type;
+        ret.resource = source.resource;
+        return ret;
     }
-    [ContextMenu("test_import")]
-    public void ImportJson() {
-        Dictionary<string, object> dic = NWJson.FromJsonToDictionary<string, object>(tempstr);
-        Debug.LogError(dic["tilePosition"]);
-        Debug.LogError(dic["tileHeight"]);
-        Debug.LogError(dic["userImportTextureUsage"]);
-        Debug.LogError(dic["map"]);
-        Debug.LogError(dic["neighborTile"]);
-        Debug.LogError(dic["type"]);
-        Debug.LogError(dic["resource"]);
-
-        this.neighborTile = dic["neighborTile"] as HexaTileInfo[];
-        Debug.LogError(this.neighborTile);
-
-        var fieldInfos = this.GetType().GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
-        List<System.Reflection.FieldInfo> fiList = new List<System.Reflection.FieldInfo>(fieldInfos);
-        foreach (var fi in fiList) {
-            Debug.LogError(fi.Name);
-            if (fi.FieldType == typeof(Vector2Int)) {
-                int x = (int)((dic[fi.Name]) as Dictionary<string, object>)["x"];
-                int y = (int)((dic[fi.Name]) as Dictionary<string, object>)["y"];
-                fi.SetValue(this, new Vector2Int(x, y));
-            } else if (fi.FieldType == typeof(HexaTileInfo[])) {
-                
-            } else {
-                fi.SetValue(this, System.Convert.ChangeType(dic[fi.Name], fi.FieldType));
-            }
-        }
+    public void ImportCommonAttributes(HexaTileInfo source) {
+        this.tilePosition = source.tilePosition;
+        this.tileHeight = source.tileHeight;
+        this.userImportTextureUsage = source.userImportTextureUsage;
+        this.faceModel = source.faceModel;
+        this.bodyModel = source.bodyModel;
+        this.map = source.map;
+        this.neighborTile = source.neighborTile;
+        this.type = source.type;
+        this.resource = source.resource;
     }
 }
 

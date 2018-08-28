@@ -6,6 +6,7 @@ public class HexaGridTileMap : MonoBehaviour {
 
     #region 종류별 타일의 프리팹 참조
     public Dictionary<int, GameObject> dic = new Dictionary<int, GameObject>();//주변 타일의 height(1자리 자연수)를 북쪽 타일부터 시계방향으로 나열한 int값이 키가 된다. (Ex : 455456)
+    public GameObject bodyModelPrefab;
     #endregion
 
     public Dictionary<Vector2Int, HexaTileInfo> Cordination = new Dictionary<Vector2Int, HexaTileInfo>();
@@ -17,11 +18,15 @@ public class HexaGridTileMap : MonoBehaviour {
         }
 
         //step 1. 타일 생성
-        GameObject addTile = GameObject.Instantiate(dic[111111]);
+        GameObject addTile = new GameObject("HexaTile_Normal");
         addTile.transform.SetParent(this.gameObject.transform);
 
         //step 2. 기본 타일 컴포넌트 추가.
         HexaTileInfo cp = addTile.AddComponent<HexaTileInfo_Normal>();
+        cp.faceModel = GameObject.Instantiate(dic[555555]);
+        cp.faceModel.transform.SetParent(addTile.transform);
+        cp.bodyModel = GameObject.Instantiate(bodyModelPrefab);
+        cp.bodyModel.transform.SetParent(addTile.transform);
 
         //step 3. 위치정보 설정
         cp.tilePosition = position;
@@ -60,12 +65,39 @@ public class HexaGridTileMap : MonoBehaviour {
             return;
         }
         if(Cordination[position].type == type) {
-            Debug.Log("바꾸려는 타일 타입이, 이전의 타일 타입과 동일합니다.");
+            Debug.Log("ChangeTileType report. type is same.");
+            return;
+        }
+        if(Cordination[position].tileHeight != 5 && type == TileType.City) {
+            Debug.LogError(L.T("높이가 기본값(5)이 아닌 타일은 도시로 지정할 수 없습니다."));
             return;
         }
 
         //타일 타입을 바꾸면, 공통속성(HexaTileInfo클래스의 속성)만 보존된다.
-        
+        //step 1. 기존 컴포넌트의 공통 속성값 복사
+        HexaTileInfo copiedCommonAttributes = HexaTileInfo.ExportCommonAttributes(Cordination[position]);
+
+        //step 2. 해당 컴포넌트의 게임 오브젝트에 대한 임시 참조 확보
+        GameObject temp = Cordination[position].gameObject;
+
+        //step 3. 해당 컴포넌트 제거
+        Destroy(temp.GetComponent<HexaTileInfo>());
+
+        //step 4. 컴포넌트 추가
+        HexaTileInfo cp = null;
+        switch (type) {
+            case TileType.City: cp = temp.AddComponent<HexaTileInfo_City>(); break;
+            case TileType.Suburbs: cp = temp.AddComponent<HexaTileInfo_Suburbs>(); break;
+            case TileType.Normal: cp = temp.AddComponent<HexaTileInfo_Normal>(); break;
+            default: Debug.LogError("ChangeTileType Error. strange Tile type : " + type); break;
+        }
+
+        //step 5. 추가한 컴포넌트에 속성값 추가
+        if(cp != null) {
+            cp.ImportCommonAttributes(copiedCommonAttributes);
+        } else {
+            Debug.LogError("ChangeTileType Error. change target component is null");
+        }
     }
     public void ChnageTileHeight(Vector2Int position, int delta) {
         if (!Cordination.ContainsKey(position)) {
@@ -76,13 +108,21 @@ public class HexaGridTileMap : MonoBehaviour {
             Debug.LogError("HexaTile height change Error. key : " + position);
             return;
         }
+        if(Cordination[position].type == TileType.City) {
+            Debug.LogError(L.T("도시타일은 높이를 변경할 수 없습니다."));
+            return;
+        }
 
+        //step 1. 타일 높이 변화
         try {
             Cordination[position].tileHeight += delta;
         } catch {
             Debug.LogError("HexaTile ChnageTileHeight Error. key : " + position + ", before height : " + Cordination[position].tileHeight + ". delta : " + delta);
             return;
         }
+
+        //step 2. 이웃한 6개의 타일의 모델 Redraw (이 타일의 높이 변화에 따라, 인접 타일들의 FaceModel이 변화해야 할 수 있음)
+
     }
     public void AddResourceToTile(Vector2Int position, HexaTileResourceInfo rsc) {
         if (!Cordination.ContainsKey(position)) {
