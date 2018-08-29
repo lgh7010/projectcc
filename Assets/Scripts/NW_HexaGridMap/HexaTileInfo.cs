@@ -10,6 +10,7 @@ public class HexaTileInfo : MonoBehaviour {
     public string userImportTextureUsage;
     public GameObject faceModel;
     public GameObject bodyModel;
+    public GameObject tileContents;
     #endregion
 
     #region 맵과 인접 타일의 참조. 0~5 : N, NE, SE, S, SW, NW
@@ -22,6 +23,14 @@ public class HexaTileInfo : MonoBehaviour {
     [HideInInspector]
     public List<HexaTileResourceInfo> resource;
     #endregion
+
+    public int GetFaceModelCode() {
+        string ret = "";
+        for(int i = 0; i < 6; i++) {
+            ret += neighborTile[i].tileHeight;
+        }
+        return int.Parse(ret);
+    }
     
     public static HexaTileInfo ExportCommonAttributes(HexaTileInfo source) {
         HexaTileInfo ret = new HexaTileInfo();
@@ -30,6 +39,7 @@ public class HexaTileInfo : MonoBehaviour {
         ret.userImportTextureUsage = source.userImportTextureUsage;
         ret.faceModel = source.faceModel;
         ret.bodyModel = source.bodyModel;
+        ret.tileContents = source.tileContents;
         ret.map = source.map;
         ret.neighborTile = source.neighborTile;
         ret.type = source.type;
@@ -42,6 +52,7 @@ public class HexaTileInfo : MonoBehaviour {
         this.userImportTextureUsage = source.userImportTextureUsage;
         this.faceModel = source.faceModel;
         this.bodyModel = source.bodyModel;
+        this.tileContents = source.tileContents;
         this.map = source.map;
         this.neighborTile = source.neighborTile;
         this.type = source.type;

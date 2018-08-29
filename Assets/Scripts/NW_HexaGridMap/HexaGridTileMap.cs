@@ -5,8 +5,8 @@ using UnityEngine;
 public class HexaGridTileMap : MonoBehaviour {
 
     #region 종류별 타일의 프리팹 참조
-    public Dictionary<int, GameObject> dic = new Dictionary<int, GameObject>();//주변 타일의 height(1자리 자연수)를 북쪽 타일부터 시계방향으로 나열한 int값이 키가 된다. (Ex : 455456)
-    public GameObject bodyModelPrefab;
+    public Dictionary<int, GameObject> faceModelPrefabDic = new Dictionary<int, GameObject>();//주변 타일의 height(1자리 자연수)를 북쪽 타일부터 시계방향으로 나열한 int값이 키가 된다. (Ex : 455456)
+    public GameObject bodyModelPrefab;//이것도 여러개가 필요하면, 딕셔너리로 수정하는것도..?
     #endregion
 
     public Dictionary<Vector2Int, HexaTileInfo> Cordination = new Dictionary<Vector2Int, HexaTileInfo>();
@@ -23,7 +23,7 @@ public class HexaGridTileMap : MonoBehaviour {
 
         //step 2. 기본 타일 컴포넌트 추가.
         HexaTileInfo cp = addTile.AddComponent<HexaTileInfo_Normal>();
-        cp.faceModel = GameObject.Instantiate(dic[555555]);
+        cp.faceModel = GameObject.Instantiate(faceModelPrefabDic[555555]);
         cp.faceModel.transform.SetParent(addTile.transform);
         cp.bodyModel = GameObject.Instantiate(bodyModelPrefab);
         cp.bodyModel.transform.SetParent(addTile.transform);
@@ -64,8 +64,13 @@ public class HexaGridTileMap : MonoBehaviour {
             Debug.LogError("Cordination doesn't have key : " + position);
             return;
         }
-        if(Cordination[position].type == type) {
+        TileType beforeType = Cordination[position].type;
+        if (beforeType == type) {
             Debug.Log("ChangeTileType report. type is same.");
+            return;
+        }
+        if(beforeType == TileType.Suburbs) {
+            Debug.LogError(L.T("Suburbs타입의 타일은 타입을 전환할 수 없습니다."));
             return;
         }
         if(Cordination[position].tileHeight != 5 && type == TileType.City) {
@@ -84,11 +89,17 @@ public class HexaGridTileMap : MonoBehaviour {
         Destroy(temp.GetComponent<HexaTileInfo>());
 
         //step 4. 컴포넌트 추가
-        HexaTileInfo cp = null;
-        switch (type) {
-            case TileType.City: cp = temp.AddComponent<HexaTileInfo_City>(); break;
-            case TileType.Suburbs: cp = temp.AddComponent<HexaTileInfo_Suburbs>(); break;
-            case TileType.Normal: cp = temp.AddComponent<HexaTileInfo_Normal>(); break;
+        HexaTileInfo cp = null;//City는 Normal로만 바꿀 수 있다. City 주위 6타일은 무조건 Suburbs기 때문에, City를 Normal로 바꾸면 인접 6개타일도 전부 Normal이 된다.
+        switch (type) {//Normal을 City로 바꾸려면 자기 인접 타일이 전부 Normal이어야 한다. 그리고 이들은 전부 Suburbs로 바뀐다.
+            case TileType.City://Suburbs타입의 타일은 타입을 전환할 수 없다.
+                cp = temp.AddComponent<HexaTileInfo_City>();
+                break;
+            case TileType.Suburbs:
+                cp = temp.AddComponent<HexaTileInfo_Suburbs>();
+                break;
+            case TileType.Normal:
+                cp = temp.AddComponent<HexaTileInfo_Normal>();
+                break;
             default: Debug.LogError("ChangeTileType Error. strange Tile type : " + type); break;
         }
 
@@ -121,8 +132,14 @@ public class HexaGridTileMap : MonoBehaviour {
             return;
         }
 
-        //step 2. 이웃한 6개의 타일의 모델 Redraw (이 타일의 높이 변화에 따라, 인접 타일들의 FaceModel이 변화해야 할 수 있음)
+        //step 2. 이웃한 6개의 타일의 FaceModel 전환
+        for(int i = 0; i < 6; i++) {
+            //step 2-1. FaceModel 게임오브젝트 제거
+            GameObject.Destroy(Cordination[position].neighborTile[i].faceModel);
 
+            //step 2-2. FaceModel 생성
+            Cordination[position].neighborTile[i].faceModel = GameObject.Instantiate(faceModelPrefabDic[Cordination[position].neighborTile[i].GetFaceModelCode()]);
+        }
     }
     public void AddResourceToTile(Vector2Int position, HexaTileResourceInfo rsc) {
         if (!Cordination.ContainsKey(position)) {
